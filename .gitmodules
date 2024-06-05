@@ -1,0 +1,4 @@
+[submodule "multilayer_perceptron"]
+	path = multilayer_perceptron
+	url = https://github.com/jmcheon/multilayer_perceptron
+    branch = main
