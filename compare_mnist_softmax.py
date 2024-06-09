@@ -11,17 +11,12 @@ from torch.utils.data import DataLoader, TensorDataset
 import tensorflow as tf
 from tensorflow.keras import layers, initializers
 
-import sys, os
-path = os.path.join(os.path.dirname(__file__), '', 'multilayer_perceptron')
-print(path)
+from multilayer_perceptron.ModelTrainer import ModelTrainer
+from multilayer_perceptron.NeuralNet import NeuralNet
+from multilayer_perceptron.srcs.utils import load_parameters, load_topology, load_split_data
 
-sys.path.insert(1, path)
-
-from ModelTrainer import ModelTrainer
-from NeuralNet import NeuralNet
-import srcs.optimizers as optimizers
-import srcs.losses as losses
-from srcs.utils import load_parameters, load_topology, load_split_data
+import multilayer_perceptron.srcs.optimizers as optimizers
+import multilayer_perceptron.srcs.losses as losses
 
 n_inputs = 784
 
