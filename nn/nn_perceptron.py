@@ -42,14 +42,13 @@ def predict(X, W, b):
     return (A >= 0.5).astype(int)
 
 
-def nn(x_train, y_train, x_test=None, y_test=None, lr=0.01, epochs=1000, plot_graph=False):
+def nn(x_train, y_train, validation_data=None, lr=0.01, epochs=1000, plot_graph=False):
     W = initialize_weights(x_train)
     b = initialize_bias()
 
-    train_loss = []
-    train_acc = []
-    test_loss = []
-    test_acc = []
+    history = {}
+    history["loss"] = []
+    history["accuracy"] = []
 
     for epoch in tqdm(range(epochs)):
         A = forward(x_train, W, b)
@@ -58,33 +57,38 @@ def nn(x_train, y_train, x_test=None, y_test=None, lr=0.01, epochs=1000, plot_gr
 
         if epoch % 10 == 0:
             # trian loss
-            train_loss.append(log_loss(A, y_train))
+            history["loss"].append(log_loss(A, y_train))
             # accuracy
             y_pred = predict(x_train, W, b)
-            train_acc.append(accuracy_score(y_train, y_pred))
+            history["accuracy"].append(accuracy_score(y_train, y_pred))
 
-            if x_test is not None and y_test is not None:
-                # test loss
-                A_test = forward(x_test, W, b)
-                test_loss.append(log_loss(A_test, y_test))
-                # accuracy
-                y_pred = predict(x_test, W, b)
-                test_acc.append(accuracy_score(y_test, y_pred))
+            if validation_data:
+                x_val, y_val = validation_data
+                if "val_loss" not in history:
+                    history["val_loss"] = []
+                if "val_accuracy" not in history:
+                    history["val_accuracy"] = []
+                # valid loss
+                A_val = forward(x_val, W, b)
+                history["val_loss"].append(log_loss(A_val, y_val))
+                # valid accuracy
+                y_pred = predict(x_val, W, b)
+                history["val_accuracy"].append(accuracy_score(y_val, y_pred))
     if plot_graph:
         plt.figure(figsize=(12, 4))
         plt.subplot(1, 2, 1)
-        plt.plot(train_loss, label="train loss")
-        plt.plot(test_loss , label="test loss")
+        plt.plot(history["loss"], label="train loss")
+        plt.plot(history["val_loss"] , label="valid loss")
         plt.legend()
         plt.subplot(1, 2, 2)
-        plt.plot(train_acc, label="train_acc")
-        plt.plot(test_acc, label="test_acc")
+        plt.plot(history["accuracy"], label="train acc")
+        plt.plot(history["val_accuracy"], label="valid acc")
         plt.legend()
         plt.show()
 
-    return W, b, train_loss, train_acc
+    return W, b, history 
 
-def plot_learning_curves(X, y, W, b, train_loss, train_acc):
+def plot_learning_curves(X, y, W, b, history):
     # Generate input data for decision boundary plot
     x1_range = np.linspace(-1.5, 1.5, 100)
     x2_range = np.linspace(-1.5, 1.5, 100)
@@ -95,10 +99,16 @@ def plot_learning_curves(X, y, W, b, train_loss, train_acc):
 
     plt.figure(figsize=(16, 4))
     plt.subplot(1, 3, 1)
-    plt.plot(train_loss, label="train loss")
+    plt.plot(history["loss"], label="train loss")
+    if "val_loss" in history:
+        plt.plot(history["val_loss"], label="valid loss")
+    plt.title("Loss")
     plt.legend()
     plt.subplot(1, 3, 2)
-    plt.plot(train_acc, label="train_acc")
+    plt.plot(history["accuracy"], label="train accuracy")
+    if "val_loss" in history:
+        plt.plot(history["val_accuracy"], label="valid accuracy")
+    plt.title("Accuracy")
     plt.legend()
     
     # Plotting decision boundary
